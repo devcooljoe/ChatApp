@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "416110676047",
+    "project_id": "chatapp-e7f23",
+    "storage_bucket": "chatapp-e7f23.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:416110676047:android:42e19eac7515c90eeec23a",
+        "android_client_info": {
+          "package_name": "com.example.rent_paddy"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDKG7WhI16pY4DZVJmwaR5ZPYQX1qVXPeM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
