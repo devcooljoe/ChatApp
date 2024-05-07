@@ -39,7 +39,22 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final data = ref.watch(signupProvider);
+    ref.listen(signupProvider, (prev, next) {
+      if (next is SignupSuccessState) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const LoginScreen(),
+          ),
+        );
+      } else if (next is SignupErrorState) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text((next).message),
+          ),
+        );
+      }
+    });
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
@@ -76,38 +91,20 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 child: ElevatedButton(
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
-                      ref
-                          .read(signupProvider.notifier)
-                          .invoke(
+                      ref.read(signupProvider.notifier).invoke(
                             name: nameController.text.trim(),
                             email: emailController.text.trim(),
                             password: passwordController.text.trim(),
-                          )
-                          .then((value) {
-                        if (data is SignupSuccessState) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const LoginScreen(),
-                            ),
                           );
-                        } else if (data is SignupErrorState) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text((data).message),
-                            ),
-                          );
-                        }
-                      });
                     }
                   },
-                  child: data is SignupLoadingState ? const CircularProgressIndicator() : const Text('SIGNUP'),
+                  child: ref.watch(signupProvider) is SignupLoadingState ? const CircularProgressIndicator() : const Text('SIGNUP'),
                 ),
               ),
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const LoginScreen(),

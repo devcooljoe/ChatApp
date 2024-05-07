@@ -22,8 +22,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void initState() {
     super.initState();
     formKey = GlobalKey<FormState>();
-    emailController = TextEditingController();
-    passwordController = TextEditingController();
+    emailController = TextEditingController(text: 'joe@gmail.com');
+    passwordController = TextEditingController(text: 'password');
   }
 
   @override
@@ -36,7 +36,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final data = ref.watch(loginProvider);
+    ref.listen(loginProvider, (prev, next) {
+      if (next is LoginSuccessState) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const ChatScreen(),
+          ),
+        );
+      } else if (next is LoginErrorState) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.message),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    });
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
@@ -67,38 +83,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 child: ElevatedButton(
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
-                      ref
-                          .read(loginProvider.notifier)
-                          .invoke(
+                      ref.read(loginProvider.notifier).invoke(
                             email: emailController.text.trim(),
                             password: passwordController.text.trim(),
-                          )
-                          .then((value) {
-                        if (data is LoginSuccessState) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const ChatScreen(),
-                            ),
                           );
-                        } else if (data is LoginErrorState) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(data.message),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      });
                     }
                   },
-                  child: data is LoginLoadingState ? const CircularProgressIndicator() : const Text('LOGIN'),
+                  child: ref.watch(loginProvider) is LoginLoadingState ? const CircularProgressIndicator() : const Text('LOGIN'),
                 ),
               ),
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
+                  Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const SignupScreen(),

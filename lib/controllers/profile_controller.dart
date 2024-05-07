@@ -23,6 +23,8 @@ class ProfileErrorState extends ProfileState {
   }
 }
 
+class UserNotLoggedInState extends ProfileState {}
+
 class ProfileNotifier extends StateNotifier<ProfileState> {
   ProfileNotifier() : super(ProfileInitialState());
 
@@ -32,12 +34,10 @@ class ProfileNotifier extends StateNotifier<ProfileState> {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         final docSnapshot = await FirebaseFirestore.instance.collection('profiles').doc(user.uid).get();
-        if (docSnapshot.exists) {
-          final profile = ProfileModel.fromMap(docSnapshot.data()!);
-          emit(ProfileSuccessState<ProfileModel>(profile));
-        } else {
-          emit(ProfileErrorState('User not found in profile'));
-        }
+        final profile = ProfileModel.fromMap(docSnapshot.data()!);
+        emit(ProfileSuccessState<ProfileModel>(profile));
+      } else {
+        emit(UserNotLoggedInState());
       }
     } catch (e) {
       emit(ProfileErrorState(e.toString()));

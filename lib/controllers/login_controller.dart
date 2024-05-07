@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:rent_paddy/controllers/profile_controller.dart';
 
 abstract class LoginState {}
 
@@ -22,15 +23,27 @@ class LoginErrorState extends LoginState {
 }
 
 class LoginNotifier extends StateNotifier<LoginState> {
-  LoginNotifier() : super(LoginInitialState());
+  LoginNotifier(this.ref) : super(LoginInitialState());
+
+  final Ref ref;
 
   Future invoke({required String email, required String password}) async {
     emit(LoginLoadingState());
     try {
       final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-      emit(LoginSuccessState<User>(userCredential.user!));
+      ref.read(profileProvider.notifier).get().then((_) {
+        emit(LoginSuccessState<User>(userCredential.user!));
+      });
     } catch (e) {
       emit(LoginErrorState(e.toString()));
+    }
+  }
+
+  Future logout() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (e) {
+      //
     }
   }
 
@@ -39,4 +52,4 @@ class LoginNotifier extends StateNotifier<LoginState> {
   }
 }
 
-final loginProvider = StateNotifierProvider<LoginNotifier, LoginState>((ref) => LoginNotifier());
+final loginProvider = StateNotifierProvider<LoginNotifier, LoginState>((ref) => LoginNotifier(ref));
