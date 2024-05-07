@@ -1,9 +1,7 @@
 import 'dart:developer';
 
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:rent_paddy/models/profile_model.dart';
 
 abstract class LoginState {}
 
@@ -16,31 +14,28 @@ class LoginSuccessState<T> extends LoginState {
   LoginSuccessState(this.data);
 }
 
-class LoginErrorState<String> extends LoginState {
+class LoginErrorState extends LoginState {
   final String message;
-  LoginErrorState(this.message);
+  LoginErrorState(this.message) {
+    log(message);
+  }
 }
 
 class LoginNotifier extends StateNotifier<LoginState> {
   LoginNotifier() : super(LoginInitialState());
 
   Future invoke({required String email, required String password}) async {
-    state = LoginLoadingState();
+    emit(LoginLoadingState());
     try {
       final userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(email: email, password: password);
-      final docSnapshot = await FirebaseFirestore.instance.collection('profiles').doc(userCredential.user!.uid).get();
-      if (docSnapshot.exists) {
-        final profile = ProfileModel.fromMap(docSnapshot.data()!);
-
-        state = LoginSuccessState<ProfileModel>(profile);
-      } else {
-        log('User not found in profile');
-        state = LoginErrorState('User not found in profile');
-      }
+      emit(LoginSuccessState<User>(userCredential.user!));
     } catch (e) {
-      log(e.toString());
-      state = LoginErrorState(e.toString());
+      emit(LoginErrorState(e.toString()));
     }
+  }
+
+  emit(LoginState value) {
+    state = value;
   }
 }
 

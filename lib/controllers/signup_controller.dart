@@ -16,25 +16,30 @@ class SignupSuccessState<T> extends SignupState {
   SignupSuccessState(this.data);
 }
 
-class SignupErrorState<String> extends SignupState {
+class SignupErrorState extends SignupState {
   final String message;
-  SignupErrorState(this.message);
+  SignupErrorState(this.message) {
+    log(message);
+  }
 }
 
 class SignupNotifier extends StateNotifier<SignupState> {
   SignupNotifier() : super(SignupInitialState());
 
   Future invoke({required String name, required String email, required String password, String? picture}) async {
-    state = SignupLoadingState();
+    emit(SignupLoadingState());
     try {
       final userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
       final profile = ProfileModel(email: email, name: name, picture: picture);
       await FirebaseFirestore.instance.collection('profiles').doc(userCredential.user!.uid).set(profile.toMap());
-      state = SignupSuccessState<ProfileModel>(profile);
+      emit(SignupSuccessState<User>(userCredential.user!));
     } catch (e) {
-      log(e.toString());
-      state = SignupErrorState(e.toString());
+      emit(SignupErrorState(e.toString()));
     }
+  }
+
+  emit(SignupState value) {
+    state = value;
   }
 }
 
