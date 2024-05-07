@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rent_paddy/controllers/profile_controller.dart';
@@ -26,7 +24,6 @@ class _InitialScreenState extends ConsumerState<InitialScreen> {
   @override
   Widget build(BuildContext context) {
     ref.listen(profileProvider, (prevState, nextState) {
-      log("State: $nextState");
       if (nextState is ProfileSuccessState) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(

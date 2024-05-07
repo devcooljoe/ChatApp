@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:rent_paddy/controllers/login_controller.dart';
 import 'package:rent_paddy/views/login_screen.dart';
+import 'package:rent_paddy/views/new_chat_screen.dart';
 import 'package:rent_paddy/views/widgets.dart';
 
 class ChatScreen extends ConsumerWidget {
@@ -14,6 +15,16 @@ class ChatScreen extends ConsumerWidget {
         backgroundColor: Colors.green,
         title: const Text('Chats', style: TextStyle(color: Colors.white)),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const NewChatScreen(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.add, size: 34, color: Colors.white),
+          ),
           IconButton(
             onPressed: () {
               ref.read(loginProvider.notifier).logout().then((value) {
